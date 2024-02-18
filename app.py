@@ -20,8 +20,8 @@ async def proxy(query: str, target_base_url: str = Depends(get_target_base_url))
         except httpx.HTTPError as e:
             raise HTTPException(status_code=e.response.status_code, detail=str(e))
 
-        return response.text
-
+        # Assuming the response content is in JSON format
+        return response.json()
 
 if __name__ == "__main__":
     import uvicorn
