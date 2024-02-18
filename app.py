@@ -1,12 +1,13 @@
 from fastapi import FastAPI, HTTPException, Depends
-from fastapi.security import OAuth2AuthorizationCodeBearer
 import httpx
 
 app = FastAPI()
 
 
 async def get_target_base_url():
+    # Update with the desired base URL of the target server
     return "http://yts.mx"
+
 
 @app.get("/proxy")
 async def proxy(query: str, target_base_url: str = Depends(get_target_base_url)):
@@ -14,17 +15,13 @@ async def proxy(query: str, target_base_url: str = Depends(get_target_base_url))
 
     async with httpx.AsyncClient() as client:
         try:
-            print(target_url)
-            response = await client.get(target_url)
+            response = await client.get(target_url, allow_redirects=True)
             response.raise_for_status()
         except httpx.HTTPError as e:
             raise HTTPException(status_code=e.response.status_code, detail=str(e))
 
         return response.text
 
-@app.get("/")
-async def read_root():
-        return {"Hello": "World"}
 
 if __name__ == "__main__":
     import uvicorn
