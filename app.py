@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Depends, StreamingResponse, HTTPException
+from fastapi import FastAPI, Depends, HTTPException
 import httpx
+from fastapi.responses import StreamingResponse
 
 app = FastAPI()
 
