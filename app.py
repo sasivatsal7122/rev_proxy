@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, Depends, StreamingResponse, HTTPException
 import httpx
 
 app = FastAPI()
@@ -15,10 +15,12 @@ async def proxy(query: str, target_base_url: str = Depends(get_target_base_url))
             response = await client.get(target_url)
             response.raise_for_status()
         except httpx.HTTPError as e:
-            raise HTTPException(status_code=e.response.status_code, detail=str(e))
+            return HTTPException(status_code=e.response.status_code, detail=str(e))
+
         if "/torrent/" in query:
-            return response
-        return response.json()
+            return StreamingResponse(iter([response.content]), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={query.split('/')[-1]}"})
+        else:
+            return response.json()
 
 if __name__ == "__main__":
     import uvicorn
